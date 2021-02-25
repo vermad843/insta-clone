@@ -1,7 +1,7 @@
 import React, {useState,useEffect} from 'react';
 import './App.css';
 import Post from './Post';
-import {db} from './firebase';
+import {db, auth} from './firebase';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import {Button, Input} from '@material-ui/core';
@@ -33,12 +33,33 @@ const useStyles = makeStyles((theme) => ({
 function App() {
   const classes = useStyles();
   const [modalStyle] = useState(getModalStyle);
-
   const [posts, setPosts] = useState([]);
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+   const unsubscribe = auth.onAuthStateChanged((authUser) =>  {
+       if(authUser) {
+          console.log(authUser);
+          setUser(authUser);
+          if(authUser.displayName) {
+
+          }else {
+            return authUser.updateProfile({
+              displayName : username,
+            });
+          }
+       }else {
+          setUser(null);
+       }
+    })
+    return () => {
+       unsubscribe();
+    }
+  }, [user, username]);
 
   useEffect(() => {
     db.collection('posts').onSnapshot(snapshot => {
@@ -46,8 +67,16 @@ function App() {
     })
   }, []);
 
-  const signUp = (event) => {
-
+  const signUp = (e) => {
+    e.preventDefault();
+    auth
+    .createUserWithEmailAndPassword(email,password)
+    .then((authUser) => {
+      return authUser.user.updateProfile({
+        displayName : username
+      })
+    })
+    .catch((error) => alert(error.message));
   }
 
   return (
@@ -83,7 +112,7 @@ function App() {
                        value={password}
                        onChange={(e) => setPassword(e.target.value)}
                     />
-                    <Button onClick= {signUp} >Sign Up</Button>
+                    <Button type = "submit" onClick= {signUp} >Sign Up</Button>
             </form>         
          </div>
        </Modal>
@@ -94,9 +123,17 @@ function App() {
                 alt = ""
                      />
        </div>
-       <Button onClick={() => setOpen(true)}>
-          Sign Up
-       </Button>
+        {
+          user ? (
+            <Button onClick = {() => auth.signOut()}>
+               Logout
+            </Button>
+          ) : (
+            <Button onClick={() => setOpen(true)}>
+             Sign Up
+          </Button>
+          )
+        }
         {
           posts.map((post, id) => 
              (<Post
