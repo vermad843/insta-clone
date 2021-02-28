@@ -94,7 +94,6 @@ function App() {
     setOpenSignIn(false);
   }
 
-  console.log(posts)
 
   return (
     <div className="app">
@@ -168,14 +167,13 @@ function App() {
                 className = "app__headerImage"
                 src = "https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
                 alt = ""
-                     />
-       </div>
-        {
-          user ? (
-            <Button onClick = {() => auth.signOut()}>
-               Logout
-            </Button>
-          ) : (
+                />
+            {
+              user ? (
+                <Button onClick = {() => auth.signOut()}>
+                   Logout
+                </Button>
+              ) : (
              <div className = "app__loginContainer">
                 <Button onClick={() => setOpenSignIn(true)}>
                   Sign In
@@ -186,17 +184,21 @@ function App() {
              </div>
           )
         }
-        {
-          posts.map((post, id) => 
-             (<Post
-               key = {id}
-               username = {post.post.username}
-               caption = {post.post.caption}
-               imageUrl = {post.post.imageUrl}
-            />
-           )
-          )
-        }
+       </div>
+       <div className = "app__posts">
+          {
+             posts.map((post, id) => 
+                (<Post
+                  key = {id}
+                  postId={id}
+                  username = {post.post.username}
+                  caption = {post.post.caption}
+                  imageUrl = {post.post.imageUrl}
+               />
+              )
+             )
+           }
+       </div>
 
         {user?.displayName ? (
          <ImageUpload username = {user.displayName}/>
