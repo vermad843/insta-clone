@@ -51,8 +51,8 @@ function ImageUpload({username}) {
            }
        )
     }
-
     return (
+
         <div className = "imageupload">
              <progress
                  className = "imageupload__progress"

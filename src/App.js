@@ -94,7 +94,6 @@ function App() {
     setOpenSignIn(false);
   }
 
-
   return (
     <div className="app">
        <Modal
@@ -190,7 +189,8 @@ function App() {
              posts.map((post, id) => 
                 (<Post
                   key = {id}
-                  postId={id}
+                  postId={post.id}
+                  user = {user}
                   username = {post.post.username}
                   caption = {post.post.caption}
                   imageUrl = {post.post.imageUrl}
@@ -205,7 +205,6 @@ function App() {
        ) : (
          <h3>Sorry you need to login to upload</h3>
        )}
-
     </div>
   );
 }

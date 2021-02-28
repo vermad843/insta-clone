@@ -2,8 +2,9 @@ import React,{useState, useEffect} from 'react';
 import './Post.css';
 import { db } from './firebase';
 import Avatar from '@material-ui/core/Avatar';
+import firebase from 'firebase';
 
-function Post({postId, username, caption, imageUrl}) {
+function Post({postId, user, username, caption, imageUrl}) {
     const [comments, setComments] = useState([]);
     const [comment, setComment] = useState('');
     
@@ -14,9 +15,10 @@ function Post({postId, username, caption, imageUrl}) {
             unsubscribe = db 
                .collection("posts")
                .doc(postId)
-               .collection("comment")
+               .collection("comments")
+               .orderBy('timestamp', 'desc')
                .onSnapshot((snapshot) => {
-                  setComments(snapshot.docs.map((doc) =>doc.data()));
+                  setComments(snapshot.docs.map((doc) => doc.data()));
                });
         }
         return () => {
@@ -24,10 +26,19 @@ function Post({postId, username, caption, imageUrl}) {
         }; 
     }, [postId]);
     
-    const postComment = (e) => {
 
+    const postComment = (e) => {
+       e.preventDefault();
+       db.collection("posts").doc(postId).collection("comments").add({
+         text : comment,
+         username : user.displayName,
+         timestamp : firebase.firestore.FieldValue.serverTimestamp()     
+       });
+       setComment('');
     }
 
+    console.log(comments);
+    
     return (
         <div className = "post">
            <div className = "post__header"> 
@@ -44,6 +55,16 @@ function Post({postId, username, caption, imageUrl}) {
                 alt = ""
             />
             <h4 className = "post__text"><strong>{username}</strong> {caption}</h4>
+             
+             <div className = "post__comments">
+                  {
+                      comments.map((comment) => (
+                          <p>
+                              <strong>{comment.username}</strong> {comment.text}
+                          </p>
+                      ))
+                  }
+             </div>
 
             <form className="post__commentBox">
                  <input
