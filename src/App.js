@@ -186,9 +186,9 @@ function App() {
        </div>
        <div className = "app__posts">
           {
-             posts.map((post, id) => 
+             posts.map((post) => 
                 (<Post
-                  key = {id}
+                  key = {post.id}
                   postId={post.id}
                   user = {user}
                   username = {post.post.username}
